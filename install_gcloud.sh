@@ -71,7 +71,7 @@ password_ok() {
   local lowered
   lowered="$(printf '%s' "$password" | tr '[:upper:]' '[:lower:]')"
 
-  [[ ${#password} -ge 14 ]] || return 1
+  [[ ${#password} -ge 10 ]] || return 1
   [[ "$password" =~ [a-z] ]] || return 1
   [[ "$password" =~ [A-Z] ]] || return 1
   [[ "$password" =~ [0-9] ]] || return 1
@@ -96,7 +96,7 @@ prompt_password() {
 
     [[ "$password" == "$confirm" ]] || { echo "Passwords did not match."; continue; }
     password_ok "$password" "$username_lc" || {
-      echo "Password must be at least 14 characters and include uppercase, lowercase, number, symbol, and not contain the username."
+      echo "Password must be at least 10 characters and include uppercase, lowercase, number, symbol, and not contain the username."
       continue
     }
 
@@ -202,7 +202,7 @@ else
     --memory=7680MB \
     --region="$REGION" \
     --enable-password-policy \
-    --password-policy-min-length=14 \
+    --password-policy-min-length=10 \
     --password-policy-complexity=COMPLEXITY_DEFAULT \
     --password-policy-reuse-interval=3 \
     --password-policy-disallow-username-substring \
