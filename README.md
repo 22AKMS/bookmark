@@ -1,78 +1,39 @@
 # bookmark
 
-A lightweight web application for browsing books, viewing details, leaving reviews, saving favorites, keeping a reading list, and rebuilding a trending list.
+### Getting started - Automatic installer 
 
-## Project specification checklist
+# Clone this project
+```bash
+git clone https://github.com/22AKMS/bookmark/
+cd bookmark/
+```
 
-Use this as a grading checklist based on the project overview requirements.
 
-### Required project features
-- [ ] Application is available on the web
-- [ ] Uses **one relational database**
-- [ ] Uses **one non-relational database**
-- [ ] Uses **at least two Google Cloud Functions** that support project functionality
-- [ ] Includes additional functionality beyond the bare minimum
-- [ ] Application stays deployed and accessible through the grading period
-- [ ] Uses real project data, seeded data, or a public dataset/API
+# Add execute permission to the script and run it 
+```bash
+chmod +x install_gcloud.sh
+./install_gcloud.sh
+```
+If this fails, follow the manual instructions at the bottom 
 
-### How this project maps to those requirements
+
+### Project info
 - [x] **Web application**: Node.js + Express app deployed to **Cloud Run**
 - [x] **Relational database**: **Cloud SQL for PostgreSQL**
 - [x] **Non-relational database**: **Firestore**
 - [x] **Google Cloud Function #1**: `updateAverageRating`
 - [x] **Google Cloud Function #2**: `rebuildTrending`
-- [x] **Additional functionality**: search, sorting, reviews, favorites, reading list, trending section, CLI control panel, installer
+- [x] **Additional functionality**: search, sorting, reviews, favorites, reading list, trending section
 - [x] **Public-facing deployment target**: Cloud Run URL
-
-### Deliverable 1 checklist
-- [x] Overall project concept / description
-- [x] Rough project architecture diagram
-- [x] List of data sources / tools / APIs
-- [x] Overview of team member responsibilities
-
-### Deliverable 3 checklist
-- [ ] Finalized project overview and architecture document
-- [ ] Names of all group members included
-- [ ] Zipped folder containing code and any data files
-- [ ] Final demo recording showing the application and implemented services
-
-## Project concept / description
-
-**bookmark** is a data-driven book discovery and review web app. Users can:
-- browse and search books
-- open a detail page for each book
-- submit reviews and ratings
-- save books to favorites
-- add books to a reading list
-- rebuild a trending list through a cloud function
-
-The app is intentionally styled lightly so the focus stays on functionality and cloud deployment.
-
-## Data sources / tools / APIs
-
-### Core platform and services
-- **Cloud Run** for hosting the web app
-- **Cloud SQL (PostgreSQL)** for structured book and review data
-- **Firestore** for favorites and reading-list data
-- **Google Cloud Functions** for rating and trending updates
-
-### Project files that implement those pieces
-- `server.js` - main web application
-- `db/schema-postgres.sql` - PostgreSQL schema
-- `db/seed-postgres.sql` - starter data
-- `functions/updateAverageRating/` - function to recompute a book's average rating
-- `functions/rebuildTrending/` - function to rebuild trending results
-- `install_gcloud.sh` - interactive installer
-- `bookmark_control.sh` - local / cloud control panel
 
 ## Team member responsibilities
 
 Adjust these names for your team.
 
-- [ ] **Member 1 - Web app / frontend**: pages, search UI, detail view, light styling
-- [ ] **Member 2 - Backend / API**: routes, validation, PostgreSQL queries, Cloud Run app wiring
-- [ ] **Member 3 - Databases / cloud services**: Cloud SQL, Firestore, seeding, IAM, environment setup
-- [ ] **Member 4 - Functions / deployment / demo**: Cloud Functions, testing, deployment verification, final demo recording
+- [ ] **Abdulla Alsaadi - Web app / frontend**: pages, search UI, detail view, light styling
+- [ ] **Noah Pumphrey - Backend / API**: routes, validation, PostgreSQL queries, Cloud Run app wiring
+- [ ] **Liulseged Abate - Databases / cloud services**: Cloud SQL, Firestore, seeding, IAM, environment setup
+- [ ] **Matteo Hodge - Functions / deployment / demo**: Cloud Functions, testing, deployment verification, final demo recording
 
 ## Rough project architecture diagram
 
