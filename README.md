@@ -1,8 +1,16 @@
 # bookmark
 
 ### Getting started - Automatic installer 
+
+# Clone this project
 ```bash
-cd ~/book-app/webapp
+git clone https://github.com/22AKMS/bookmark/
+cd bookmark/
+```
+
+
+# Add execute permission to the script and run it 
+```bash
 chmod +x install_gcloud.sh
 ./install_gcloud.sh
 ```
