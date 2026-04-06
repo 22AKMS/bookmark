@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title><%= appName %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body data-user-id="<%= appUserId %>">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow"><%= appName %></p>
+      <h1>Browse books, save favorites, and track your reading.</h1>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel controls">
+      <input id="searchInput" type="search" placeholder="Search title, author, or genre">
+      <select id="genreSelect">
+        <option value="">All genres</option>
+      </select>
+      <select id="sortSelect">
+        <option value="title">Sort: Title</option>
+        <option value="rating">Sort: Rating</option>
+        <option value="year">Sort: Newest</option>
+        <option value="trending">Sort: Trending</option>
+      </select>
+      <button id="searchButton">Apply</button>
+    </section>
+
+    <section class="split">
+      <div>
+        <div class="section-title-row">
+          <h2>Books</h2>
+          <span id="bookCount" class="pill"></span>
+        </div>
+        <div id="bookGrid" class="book-grid"></div>
+      </div>
+
+      <aside class="sidebar">
+        <div class="panel">
+          <div class="section-title-row">
+            <h2>Trending</h2>
+          </div>
+          <div id="trendingList" class="stack"></div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script src="/static/app.js" defer></script>
+</body>
+</html>

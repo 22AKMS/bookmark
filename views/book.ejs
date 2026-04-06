@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title><%= appName %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body data-book-id="<%= bookId %>" data-user-id="<%= appUserId %>">
+  <header class="page-header slim">
+    <a class="back-link" href="/">← Back to books</a>
+  </header>
+
+  <main class="layout detail-layout">
+    <section id="bookHero" class="book-hero panel"></section>
+
+    <section class="detail-grid">
+      <div class="panel">
+        <div class="section-title-row">
+          <h2>Reviews</h2>
+        </div>
+        <div id="reviewsList" class="stack"></div>
+      </div>
+
+      <aside class="stack">
+        <div class="panel">
+          <h2>Add Review</h2>
+          <form id="reviewForm" class="stack">
+            <input name="reviewer_name" placeholder="Your name" required>
+            <select name="rating" required>
+              <option value="">Rating</option>
+              <option value="5">5 - Great</option>
+              <option value="4">4 - Good</option>
+              <option value="3">3 - Okay</option>
+              <option value="2">2 - Weak</option>
+              <option value="1">1 - Bad</option>
+            </select>
+            <textarea name="review_text" rows="5" placeholder="Write a short review" required></textarea>
+            <button type="submit">Submit Review</button>
+          </form>
+          <p id="formMessage" class="muted"></p>
+        </div>
+
+        <div class="panel">
+          <h2>Related Books</h2>
+          <div id="relatedBooks" class="stack"></div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script src="/static/book.js" defer></script>
+</body>
+</html>
