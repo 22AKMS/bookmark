@@ -109,13 +109,34 @@ resource_exists() {
   "$@" >/dev/null 2>&1
 }
 
+wait_for_service_account() {
+  local sa_email="$1"
+  local attempts=20
+  local delay=3
+  for ((i=1; i<=attempts; i++)); do
+    if gcloud iam service-accounts describe "$sa_email" >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep "$delay"
+  done
+  return 1
+}
+
 add_binding_if_missing() {
   local member="$1"
   local role="$2"
-  gcloud projects add-iam-policy-binding "$PROJECT_ID" \
-    --member="$member" \
-    --role="$role" \
-    --quiet >/dev/null
+  local attempts=10
+  local delay=5
+  for ((i=1; i<=attempts; i++)); do
+    if gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+      --member="$member" \
+      --role="$role" \
+      --quiet >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep "$delay"
+  done
+  fail "Failed to grant $role to $member after multiple retries."
 }
 
 wait_for_url() {
@@ -337,6 +358,6 @@ Average rating function: $AVG_URL
 Trending function: $TREND_URL
 Cloud SQL instance: $INSTANCE
 Firestore database: $FIRESTORE_DB
-Active gcloud account: ${DEFAULT_ACCOUNT:-unknown}
+Active gcloud account: $(gcloud config get-value account 2>/dev/null || echo unknown)
 
 EOF
