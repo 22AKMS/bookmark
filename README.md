@@ -1,35 +1,31 @@
 # bookmark
 
+### Getting started - Automatic installer 
+```bash
+cd ~/book-app/webapp
+chmod +x install_gcloud.sh
+./install_gcloud.sh
+```
+If this fails, follow the manual instructions at the bottom 
 
-### How this project maps to those requirements
+
+### Project info
 - [x] **Web application**: Node.js + Express app deployed to **Cloud Run**
 - [x] **Relational database**: **Cloud SQL for PostgreSQL**
 - [x] **Non-relational database**: **Firestore**
 - [x] **Google Cloud Function #1**: `updateAverageRating`
 - [x] **Google Cloud Function #2**: `rebuildTrending`
-- [x] **Additional functionality**: search, sorting, reviews, favorites, reading list, trending section, CLI control panel, installer
+- [x] **Additional functionality**: search, sorting, reviews, favorites, reading list, trending section
 - [x] **Public-facing deployment target**: Cloud Run URL
-
-### Deliverable 1 checklist
-- [x] Overall project concept / description
-- [x] Rough project architecture diagram
-- [x] List of data sources / tools / APIs
-- [x] Overview of team member responsibilities
-
-### Deliverable 3 checklist
-- [ ] Finalized project overview and architecture document
-- [ ] Names of all group members included
-- [ ] Zipped folder containing code and any data files
-- [ ] Final demo recording showing the application and implemented services
 
 ## Team member responsibilities
 
 Adjust these names for your team.
 
-- [ ] **Member 1 - Web app / frontend**: pages, search UI, detail view, light styling
-- [ ] **Member 2 - Backend / API**: routes, validation, PostgreSQL queries, Cloud Run app wiring
-- [ ] **Member 3 - Databases / cloud services**: Cloud SQL, Firestore, seeding, IAM, environment setup
-- [ ] **Member 4 - Functions / deployment / demo**: Cloud Functions, testing, deployment verification, final demo recording
+- [ ] **Abdulla Alsaadi - Web app / frontend**: pages, search UI, detail view, light styling
+- [ ] **Noah Pumphrey - Backend / API**: routes, validation, PostgreSQL queries, Cloud Run app wiring
+- [ ] **Liulseged Abate - Databases / cloud services**: Cloud SQL, Firestore, seeding, IAM, environment setup
+- [ ] **Matteo Hodge - Functions / deployment / demo**: Cloud Functions, testing, deployment verification, final demo recording
 
 ## Rough project architecture diagram
 
