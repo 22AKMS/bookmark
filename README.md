@@ -1,19 +1,5 @@
 # bookmark
 
-A lightweight web application for browsing books, viewing details, leaving reviews, saving favorites, keeping a reading list, and rebuilding a trending list.
-
-## Project specification checklist
-
-Use this as a grading checklist based on the project overview requirements.
-
-### Required project features
-- [ ] Application is available on the web
-- [ ] Uses **one relational database**
-- [ ] Uses **one non-relational database**
-- [ ] Uses **at least two Google Cloud Functions** that support project functionality
-- [ ] Includes additional functionality beyond the bare minimum
-- [ ] Application stays deployed and accessible through the grading period
-- [ ] Uses real project data, seeded data, or a public dataset/API
 
 ### How this project maps to those requirements
 - [x] **Web application**: Node.js + Express app deployed to **Cloud Run**
@@ -35,35 +21,6 @@ Use this as a grading checklist based on the project overview requirements.
 - [ ] Names of all group members included
 - [ ] Zipped folder containing code and any data files
 - [ ] Final demo recording showing the application and implemented services
-
-## Project concept / description
-
-**bookmark** is a data-driven book discovery and review web app. Users can:
-- browse and search books
-- open a detail page for each book
-- submit reviews and ratings
-- save books to favorites
-- add books to a reading list
-- rebuild a trending list through a cloud function
-
-The app is intentionally styled lightly so the focus stays on functionality and cloud deployment.
-
-## Data sources / tools / APIs
-
-### Core platform and services
-- **Cloud Run** for hosting the web app
-- **Cloud SQL (PostgreSQL)** for structured book and review data
-- **Firestore** for favorites and reading-list data
-- **Google Cloud Functions** for rating and trending updates
-
-### Project files that implement those pieces
-- `server.js` - main web application
-- `db/schema-postgres.sql` - PostgreSQL schema
-- `db/seed-postgres.sql` - starter data
-- `functions/updateAverageRating/` - function to recompute a book's average rating
-- `functions/rebuildTrending/` - function to rebuild trending results
-- `install_gcloud.sh` - interactive installer
-- `bookmark_control.sh` - local / cloud control panel
 
 ## Team member responsibilities
 
