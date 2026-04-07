@@ -1,20 +1,32 @@
 # bookmark
 
-### Getting started - Automatic installer 
+# Getting started - Automatic installer 
 
-# Clone this project
+### Clone this project
 ```bash
 git clone https://github.com/22AKMS/bookmark/
 cd bookmark/
 ```
 
 
-# Add execute permission to the script and run it 
+### Add execute permission to the script and run it 
 ```bash
 chmod +x install_gcloud.sh
 ./install_gcloud.sh
 ```
 If this fails, follow the manual instructions at the bottom 
+
+## App manager 
+```bash
+chmod +x bookmark_control.sh
+./bookmark_control.sh
+```
+
+## App uninstaller
+```bash
+chmod +x uninstall_gcloud.sh
+./uninstall_gcloud.sh
+```
 
 
 ### Project info
@@ -293,17 +305,6 @@ gcloud run services describe "$APP_SERVICE" \
   --region "$REGION" \
   --format='value(status.url)'
 ```
-
-### 10. Verify the deployment
-
-- [ ] Home page loads
-- [ ] Books appear on the list page
-- [ ] Search works
-- [ ] Book detail page opens
-- [ ] Review submission works
-- [ ] Favorites work
-- [ ] Reading list works
-- [ ] Trending function runs successfully
 
 ### 11. Useful logs
 
