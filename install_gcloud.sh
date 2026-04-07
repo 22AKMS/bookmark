@@ -109,34 +109,17 @@ resource_exists() {
   "$@" >/dev/null 2>&1
 }
 
-wait_for_service_account() {
-  local sa_email="$1"
-  local attempts=20
-  local delay=3
-  for ((i=1; i<=attempts; i++)); do
-    if gcloud iam service-accounts describe "$sa_email" >/dev/null 2>&1; then
-      return 0
-    fi
-    sleep "$delay"
-  done
-  return 1
-}
-
 add_binding_if_missing() {
   local member="$1"
   local role="$2"
-  local attempts=10
-  local delay=5
-  for ((i=1; i<=attempts; i++)); do
-    if gcloud projects add-iam-policy-binding "$PROJECT_ID" \
-      --member="$member" \
-      --role="$role" \
-      --quiet >/dev/null 2>&1; then
+  local attempt
+  for attempt in 1 2 3 4 5; do
+    if gcloud projects add-iam-policy-binding "$PROJECT_ID"       --member="$member"       --role="$role"       --quiet >/dev/null 2>&1; then
       return 0
     fi
-    sleep "$delay"
+    sleep $((attempt * 3))
   done
-  fail "Failed to grant $role to $member after multiple retries."
+  gcloud projects add-iam-policy-binding "$PROJECT_ID"     --member="$member"     --role="$role"     --quiet >/dev/null
 }
 
 wait_for_url() {
@@ -177,14 +160,14 @@ DEFAULT_ACCOUNT="$(gcloud config get-value account 2>/dev/null || true)"
 
 prompt_default PROJECT_ID "Google Cloud project ID" "$DEFAULT_PROJECT"
 prompt_default REGION "Region" "us-central1"
-prompt_default INSTANCE "Cloud SQL instance name" "bookmark-sql"
-prompt_default DB_NAME "PostgreSQL database name" "bookmark"
+prompt_default INSTANCE "Cloud SQL instance name" "bookfinder-sql"
+prompt_default DB_NAME "PostgreSQL database name" "bookfinder"
 prompt_default DB_USER "PostgreSQL app user" "appuser"
 prompt_password DB_PASSWORD "PostgreSQL app user password" "$DB_USER"
 prompt_password POSTGRES_PASSWORD "PostgreSQL postgres admin password" "postgres"
-prompt_default FIRESTORE_DB "Firestore database ID" "books-app"
-prompt_default APP_SERVICE "Cloud Run service name" "bookmark-app"
-prompt_default APP_SA "Service account name" "bookmark-sa"
+prompt_default FIRESTORE_DB "Firestore database ID" "(default)"
+prompt_default APP_SERVICE "Cloud Run service name" "bookfinder-app"
+prompt_default APP_SA "Service account name" "bookfinder-sa"
 prompt_default AVG_FUNCTION "Average-rating function name" "updateAverageRating"
 prompt_default TREND_FUNCTION "Trending function name" "rebuildTrending"
 prompt_default APP_USER_ID "Demo app user ID" "demo-user"
@@ -205,11 +188,27 @@ log "Ensuring Firestore database exists"
 if gcloud firestore databases describe --database="$FIRESTORE_DB" >/dev/null 2>&1; then
   echo "Firestore database $FIRESTORE_DB already exists."
 else
-  gcloud firestore databases create \
-    --database="$FIRESTORE_DB" \
-    --location="$REGION" \
-    --edition=standard \
-    --type=firestore-native >/dev/null
+  while true; do
+    set +e
+    FIRESTORE_CREATE_OUTPUT="$(gcloud firestore databases create       --database="$FIRESTORE_DB"       --location="$REGION"       --edition=standard       --type=firestore-native 2>&1)"
+    FIRESTORE_CREATE_STATUS=$?
+    set -e
+
+    if [[ $FIRESTORE_CREATE_STATUS -eq 0 ]]; then
+      break
+    fi
+
+    if [[ "$FIRESTORE_CREATE_OUTPUT" == *"Database ID '$FIRESTORE_DB' is not available"* ]]; then
+      echo
+      echo "Firestore database ID '$FIRESTORE_DB' was recently deleted and is temporarily unavailable."
+      echo "Pick a new Firestore database ID now, or wait a few minutes and rerun the installer."
+      prompt_default FIRESTORE_DB "New Firestore database ID" "${FIRESTORE_DB}-2"
+      continue
+    fi
+
+    echo "$FIRESTORE_CREATE_OUTPUT" >&2
+    fail "Failed to create Firestore database $FIRESTORE_DB."
+  done
 fi
 
 log "Ensuring Cloud SQL instance exists"
@@ -290,6 +289,12 @@ if gcloud iam service-accounts describe "$SA_EMAIL" >/dev/null 2>&1; then
   echo "Service account $SA_EMAIL already exists."
 else
   gcloud iam service-accounts create "$APP_SA" --display-name="bookmark service account" >/dev/null
+  for _ in 1 2 3 4 5; do
+    if gcloud iam service-accounts describe "$SA_EMAIL" >/dev/null 2>&1; then
+      break
+    fi
+    sleep 3
+  done
 fi
 
 log "Granting IAM roles"
@@ -303,7 +308,7 @@ gcloud run deploy "$APP_SERVICE" \
   --allow-unauthenticated \
   --service-account "$SA_EMAIL" \
   --add-cloudsql-instances "$INSTANCE_CONNECTION_NAME" \
-  --set-env-vars "APP_NAME=bookmark,APP_USER_ID=$APP_USER_ID,FIRESTORE_PROJECT_ID=$PROJECT_ID,FIRESTORE_DATABASE_ID=$FIRESTORE_DB,INSTANCE_CONNECTION_NAME=$INSTANCE_CONNECTION_NAME,DB_NAME=$DB_NAME,DB_USER=$DB_USER,DB_PASSWORD=$DB_PASSWORD"
+  --set-env-vars "APP_USER_ID=$APP_USER_ID,FIRESTORE_PROJECT_ID=$PROJECT_ID,FIRESTORE_DATABASE_ID=$FIRESTORE_DB,INSTANCE_CONNECTION_NAME=$INSTANCE_CONNECTION_NAME,DB_NAME=$DB_NAME,DB_USER=$DB_USER,DB_PASSWORD=$DB_PASSWORD"
 
 log "Deploying function $AVG_FUNCTION"
 gcloud functions deploy "$AVG_FUNCTION" \
@@ -358,6 +363,6 @@ Average rating function: $AVG_URL
 Trending function: $TREND_URL
 Cloud SQL instance: $INSTANCE
 Firestore database: $FIRESTORE_DB
-Active gcloud account: $(gcloud config get-value account 2>/dev/null || echo unknown)
+Active gcloud account: ${DEFAULT_ACCOUNT:-unknown}
 
 EOF
