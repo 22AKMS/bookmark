@@ -83,7 +83,7 @@ prompt_default APP_SERVICE "Cloud Run service name" "${APP_SERVICE:-bookfinder-a
 prompt_default AVG_FUNCTION "Average-rating function name" "${AVG_FUNCTION:-updateAverageRating}"
 prompt_default TREND_FUNCTION "Trending function name" "${TREND_FUNCTION:-rebuildTrending}"
 prompt_default SQL_INSTANCE "Cloud SQL instance name" "${SQL_INSTANCE:-bookfinder-sql}"
-prompt_default FIRESTORE_DB "Firestore database ID" "${FIRESTORE_DB:-'(default)'}"
+prompt_default FIRESTORE_DB "Firestore database ID" "${FIRESTORE_DB:-'books-app'}"
 prompt_default APP_SA "Service account name to optionally delete" "${APP_SA:-bookfinder-sa}"
 prompt_yes_no DELETE_SERVICE_ACCOUNT "Also delete the app service account?" "y"
 
