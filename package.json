@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "seed": "node scripts/seed.js"
+    "seed": "node scripts/seed.js",
+    "hydrate-covers": "node scripts/hydrateGoogleBooksCovers.js"
   },
   "engines": {
     "node": ">=20"

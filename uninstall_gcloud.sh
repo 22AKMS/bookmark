@@ -45,9 +45,11 @@ prompt_yes_no() {
   local prompt_text="$2"
   local default_value="${3:-y}"
   local value=""
+  local prompt_suffix='[Y/n]'
+  [[ "$default_value" == "n" ]] && prompt_suffix='[N/y]'
 
   while true; do
-    read -r -p "$prompt_text [${default_value^^}/$([[ "$default_value" == "y" ]] && echo N || echo Y)]: " value || true
+    read -r -p "$prompt_text $prompt_suffix " value || true
     value="${value:-$default_value}"
     value="$(printf '%s' "$value" | tr '[:upper:]' '[:lower:]')"
     case "$value" in
@@ -62,20 +64,28 @@ resource_exists() {
   "$@" >/dev/null 2>&1
 }
 
+load_manifest_if_present() {
+  if [[ -f .gcloud-deploy.env ]]; then
+    # shellcheck disable=SC1091
+    source .gcloud-deploy.env
+  fi
+}
+
 require_cmd gcloud
+load_manifest_if_present
 
 CURRENT_PROJECT="$(gcloud config get-value project 2>/dev/null || true)"
 CURRENT_ACCOUNT="$(gcloud config get-value account 2>/dev/null || true)"
 
-prompt_default PROJECT_ID "Google Cloud project ID" "${CURRENT_PROJECT:-}"
-prompt_default REGION "Region" "us-central1"
-prompt_default APP_SERVICE "Cloud Run service name" "bookmark-app"
-prompt_default AVG_FUNCTION "Average-rating function name" "updateAverageRating"
-prompt_default TREND_FUNCTION "Trending function name" "rebuildTrending"
-prompt_default SQL_INSTANCE "Cloud SQL instance name" "bookmark-sql"
-prompt_default FIRESTORE_DB "Firestore database ID" "books-app"
-prompt_default APP_SA "Service account name to optionally delete" "bookmark-sa"
-prompt_yes_no DELETE_SERVICE_ACCOUNT "Also delete the app service account?" "n"
+prompt_default PROJECT_ID "Google Cloud project ID" "${PROJECT_ID:-${CURRENT_PROJECT:-}}"
+prompt_default REGION "Region" "${REGION:-us-central1}"
+prompt_default APP_SERVICE "Cloud Run service name" "${APP_SERVICE:-bookfinder-app}"
+prompt_default AVG_FUNCTION "Average-rating function name" "${AVG_FUNCTION:-updateAverageRating}"
+prompt_default TREND_FUNCTION "Trending function name" "${TREND_FUNCTION:-rebuildTrending}"
+prompt_default SQL_INSTANCE "Cloud SQL instance name" "${SQL_INSTANCE:-bookfinder-sql}"
+prompt_default FIRESTORE_DB "Firestore database ID" "${FIRESTORE_DB:-'(default)'}"
+prompt_default APP_SA "Service account name to optionally delete" "${APP_SA:-bookfinder-sa}"
+prompt_yes_no DELETE_SERVICE_ACCOUNT "Also delete the app service account?" "y"
 
 log "Active gcloud account: ${CURRENT_ACCOUNT:-unknown}"
 log "Using project: $PROJECT_ID"
@@ -101,61 +111,38 @@ read -r -p "Type DELETE to continue: " CONFIRM
 
 log "Deleting Cloud Run service if it exists"
 if resource_exists gcloud run services describe "$APP_SERVICE" --project "$PROJECT_ID" --region "$REGION"; then
-  gcloud run services delete "$APP_SERVICE" \
-    --project "$PROJECT_ID" \
-    --region "$REGION" \
-    --quiet
+  gcloud run services delete "$APP_SERVICE" --project "$PROJECT_ID" --region "$REGION" --quiet
+elif [[ "$APP_SERVICE" != "bookfinder-app" ]] && resource_exists gcloud run services describe bookfinder-app --project "$PROJECT_ID" --region "$REGION"; then
+  gcloud run services delete bookfinder-app --project "$PROJECT_ID" --region "$REGION" --quiet
 else
   echo "Cloud Run service not found: $APP_SERVICE"
 fi
 
 log "Deleting Cloud Functions if they exist"
 if resource_exists gcloud functions describe "$AVG_FUNCTION" --project "$PROJECT_ID" --gen2 --region "$REGION"; then
-  gcloud functions delete "$AVG_FUNCTION" \
-    --project "$PROJECT_ID" \
-    --gen2 \
-    --region "$REGION" \
-    --quiet
+  gcloud functions delete "$AVG_FUNCTION" --project "$PROJECT_ID" --gen2 --region "$REGION" --quiet
 else
   echo "Function not found: $AVG_FUNCTION"
 fi
 
 if resource_exists gcloud functions describe "$TREND_FUNCTION" --project "$PROJECT_ID" --gen2 --region "$REGION"; then
-  gcloud functions delete "$TREND_FUNCTION" \
-    --project "$PROJECT_ID" \
-    --gen2 \
-    --region "$REGION" \
-    --quiet
+  gcloud functions delete "$TREND_FUNCTION" --project "$PROJECT_ID" --gen2 --region "$REGION" --quiet
 else
   echo "Function not found: $TREND_FUNCTION"
 fi
 
 log "Deleting Cloud SQL instance if it exists"
 if resource_exists gcloud sql instances describe "$SQL_INSTANCE" --project "$PROJECT_ID"; then
-  gcloud sql instances patch "$SQL_INSTANCE" \
-    --project "$PROJECT_ID" \
-    --no-deletion-protection \
-    --quiet >/dev/null 2>&1 || true
-
-  gcloud sql instances delete "$SQL_INSTANCE" \
-    --project "$PROJECT_ID" \
-    --quiet
+  gcloud sql instances patch "$SQL_INSTANCE" --project "$PROJECT_ID" --no-deletion-protection --quiet >/dev/null 2>&1 || true
+  gcloud sql instances delete "$SQL_INSTANCE" --project "$PROJECT_ID" --quiet
 else
   echo "Cloud SQL instance not found: $SQL_INSTANCE"
 fi
 
 log "Deleting Firestore database if it exists"
 if resource_exists gcloud firestore databases describe --project "$PROJECT_ID" --database "$FIRESTORE_DB"; then
-  gcloud firestore databases update \
-    --project "$PROJECT_ID" \
-    --database "$FIRESTORE_DB" \
-    --no-delete-protection \
-    --quiet >/dev/null 2>&1 || true
-
-  gcloud firestore databases delete \
-    --project "$PROJECT_ID" \
-    --database "$FIRESTORE_DB" \
-    --quiet
+  gcloud firestore databases update --project "$PROJECT_ID" --database "$FIRESTORE_DB" --no-delete-protection --quiet >/dev/null 2>&1 || true
+  gcloud firestore databases delete --project "$PROJECT_ID" --database "$FIRESTORE_DB" --quiet
 else
   echo "Firestore database not found: $FIRESTORE_DB"
 fi
@@ -164,13 +151,13 @@ if [[ "$DELETE_SERVICE_ACCOUNT" == "y" ]]; then
   log "Deleting service account if it exists"
   SERVICE_ACCOUNT_EMAIL="${APP_SA}@${PROJECT_ID}.iam.gserviceaccount.com"
   if resource_exists gcloud iam service-accounts describe "$SERVICE_ACCOUNT_EMAIL" --project "$PROJECT_ID"; then
-    gcloud iam service-accounts delete "$SERVICE_ACCOUNT_EMAIL" \
-      --project "$PROJECT_ID" \
-      --quiet
+    gcloud iam service-accounts delete "$SERVICE_ACCOUNT_EMAIL" --project "$PROJECT_ID" --quiet
   else
     echo "Service account not found: $SERVICE_ACCOUNT_EMAIL"
   fi
 fi
+
+rm -f .gcloud-deploy.env
 
 log "Remaining matching resources"
 gcloud run services list --project "$PROJECT_ID" --region "$REGION" || true

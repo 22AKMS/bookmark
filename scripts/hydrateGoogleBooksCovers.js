@@ -1,129 +1,110 @@
+#!/usr/bin/env node
 const { execFileSync } = require('child_process');
 
-function sqlEscape(value) {
-  return String(value).replace(/'/g, "''");
-}
+const DB_HOST = process.env.DB_HOST || '127.0.0.1';
+const DB_PORT = process.env.DB_PORT || '9470';
+const DB_USER = process.env.DB_USER || 'appuser';
+const DB_NAME = process.env.DB_NAME || 'bookfinder';
+const PGPASSWORD = process.env.PGPASSWORD || process.env.DB_PASSWORD || '';
 
-function runPsql(sql) {
-  const args = [];
-  if (process.env.DB_HOST) args.push('-h', process.env.DB_HOST);
-  if (process.env.DB_PORT) args.push('-p', String(process.env.DB_PORT));
-  args.push('-U', process.env.DB_USER || 'appuser');
-  args.push('-d', process.env.DB_NAME || 'bookmark');
-  args.push('-v', 'ON_ERROR_STOP=1');
-  args.push('-t', '-A', '-F', '\t');
-  args.push('-c', sql);
-  return execFileSync('psql', args, {
-    env: { ...process.env, PGPASSWORD: process.env.DB_PASSWORD || '' },
+function psql(args, input) {
+  return execFileSync('psql', [
+    '-h', DB_HOST,
+    '-p', DB_PORT,
+    '-U', DB_USER,
+    '-d', DB_NAME,
+    ...args,
+  ], {
+    env: { ...process.env, PGPASSWORD },
+    input,
     encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe']
-  }).trim();
+    stdio: input == null ? ['ignore', 'pipe', 'pipe'] : ['pipe', 'pipe', 'pipe'],
+  });
 }
 
-function normalize(text) {
-  return String(text || '')
+function sqlLiteral(value) {
+  return `'${String(value).replace(/'/g, "''")}'`;
+}
+
+function normalizeTitle(value) {
+  return String(value)
     .toLowerCase()
-    .normalize('NFKD')
     .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
     .trim();
 }
 
-function scoreItem(item, title, author, year) {
-  const info = item.volumeInfo || {};
-  const apiTitle = normalize(info.title);
-  const apiSubtitle = normalize(info.subtitle);
-  const fullTitle = `${apiTitle} ${apiSubtitle}`.trim();
-  const wantedTitle = normalize(title);
-  const wantedAuthor = normalize(author);
-  const authors = Array.isArray(info.authors) ? info.authors.map(normalize) : [];
-
-  let score = 0;
-  if (apiTitle === wantedTitle || fullTitle === wantedTitle) score += 100;
-  else if (apiTitle.includes(wantedTitle) || wantedTitle.includes(apiTitle)) score += 70;
-  else if (fullTitle.includes(wantedTitle) || wantedTitle.includes(fullTitle)) score += 60;
-
-  if (authors.includes(wantedAuthor)) score += 50;
-  else if (authors.some((a) => a.includes(wantedAuthor) || wantedAuthor.includes(a))) score += 30;
-
-  if (String(info.publishedDate || '').startsWith(String(year || ''))) score += 10;
-
-  const links = info.imageLinks || {};
-  if (links.extraLarge) score += 15;
-  else if (links.large) score += 12;
-  else if (links.medium) score += 9;
-  else if (links.small) score += 6;
-  else if (links.thumbnail) score += 4;
-  else if (links.smallThumbnail) score += 2;
-
-  return score;
-}
-
-function bestCoverUrl(item) {
-  const links = (item && item.volumeInfo && item.volumeInfo.imageLinks) || {};
-  const url = links.extraLarge || links.large || links.medium || links.small || links.thumbnail || links.smallThumbnail || '';
-  return url.replace(/^http:/, 'https:');
-}
-
-async function fetchCover(title, author, year) {
-  const q = encodeURIComponent(`intitle:${title} inauthor:${author}`);
-  const url = `https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=10&printType=books`;
+async function fetchBestCover(title, author) {
+  const query = `intitle:${title} inauthor:${author}`;
+  const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&printType=books&langRestrict=en&maxResults=5`;
   const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
-  if (!res.ok) {
-    throw new Error(`Google Books lookup failed: ${res.status}`);
-  }
+  if (!res.ok) throw new Error(`Google Books HTTP ${res.status}`);
   const data = await res.json();
   const items = Array.isArray(data.items) ? data.items : [];
-  const candidates = items.filter((item) => bestCoverUrl(item));
-  if (!candidates.length) return '';
-  candidates.sort((a, b) => scoreItem(b, title, author, year) - scoreItem(a, title, author, year));
-  return bestCoverUrl(candidates[0]);
+  if (!items.length) return null;
+
+  const wanted = normalizeTitle(title);
+  const pick = items.find((item) => {
+    const got = normalizeTitle(item?.volumeInfo?.title || '');
+    return got === wanted || got.includes(wanted) || wanted.includes(got);
+  }) || items.find((item) => item?.volumeInfo?.imageLinks) || items[0];
+
+  if (!pick?.id) return null;
+  return `https://books.google.com/books/content?id=${encodeURIComponent(pick.id)}&printsec=frontcover&img=1&zoom=3&source=gbs_api`;
 }
 
 async function main() {
-  const sql = `
-    SELECT b.id, b.title, a.name AS author_name, b.published_year, COALESCE(b.cover_url, '') AS cover_url
-    FROM books b
-    JOIN authors a ON a.id = b.author_id
-    WHERE b.cover_url IS NULL
-       OR b.cover_url = ''
-       OR b.cover_url LIKE 'https://placehold.co/%'
-    ORDER BY b.id ASC;
-  `;
+  const rowsRaw = psql([
+    '-t', '-A', '-F', '\t', '-c',
+    `SELECT b.id, b.title, a.name
+     FROM books b
+     JOIN authors a ON a.id = b.author_id
+     WHERE b.cover_url IS NULL
+        OR b.cover_url = ''
+        OR b.cover_url LIKE 'https://placehold.co/%'
+     ORDER BY b.id;`
+  ]);
 
-  const output = runPsql(sql);
-  if (!output) {
-    console.log('Google Books cover hydration: nothing to update.');
+  const rows = rowsRaw
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [id, title, author] = line.split('\t');
+      return { id: Number(id), title, author };
+    });
+
+  if (!rows.length) {
+    console.log('No placeholder covers found.');
     return;
   }
 
-  const rows = output.split('\n').filter(Boolean).map((line) => {
-    const [id, title, author_name, published_year, cover_url] = line.split('\t');
-    return { id: Number(id), title, author_name, published_year: Number(published_year), cover_url };
-  });
-
-  let updated = 0;
-  let skipped = 0;
-
+  const updates = [];
   for (const row of rows) {
     try {
-      const cover = await fetchCover(row.title, row.author_name, row.published_year);
-      if (!cover) {
-        skipped += 1;
-        continue;
+      const url = await fetchBestCover(row.title, row.author);
+      if (url) {
+        updates.push(`UPDATE books SET cover_url = ${sqlLiteral(url)} WHERE id = ${row.id};`);
+        console.log(`Mapped: ${row.title} -> Google Books`);
+      } else {
+        console.log(`No Google Books cover found: ${row.title}`);
       }
-      runPsql(`UPDATE books SET cover_url = '${sqlEscape(cover)}' WHERE id = ${row.id};`);
-      updated += 1;
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    } catch (error) {
-      skipped += 1;
-      console.error(`Cover lookup failed for ${row.title}: ${error.message}`);
+    } catch (err) {
+      console.log(`Lookup failed for ${row.title}: ${err.message}`);
     }
   }
 
-  console.log(`Google Books cover hydration complete. Updated: ${updated}. Skipped: ${skipped}.`);
+  if (!updates.length) {
+    console.log('No cover updates to apply.');
+    return;
+  }
+
+  const sql = `BEGIN;\n${updates.join('\n')}\nCOMMIT;\n`;
+  psql(['-v', 'ON_ERROR_STOP=1'], sql);
+  console.log(`Applied ${updates.length} Google Books cover updates.`);
 }
 
-main().catch((error) => {
-  console.error(error);
+main().catch((err) => {
+  console.error(err.stack || String(err));
   process.exit(1);
 });
