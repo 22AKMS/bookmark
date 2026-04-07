@@ -76,7 +76,7 @@ const SAMPLE_BOOKS = [
     author: "Madeleine L'Engle",
     genre: "Science Fiction",
     published_year: 1962,
-    cover_url: "https://placehold.co/600x900/png?text=A+Wrinkle+in+Time",
+    cover_url: "https://books.google.com/books/content?id=BYsDLOsntpAC&printsec=frontcover&img=1&zoom=3&source=gbs_api",
     description: "A young girl crosses strange worlds in a brave search for her father and for hope."
   },
   {

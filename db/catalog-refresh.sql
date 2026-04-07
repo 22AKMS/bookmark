@@ -56,7 +56,7 @@ WHERE NOT EXISTS (SELECT 1 FROM books b JOIN authors a ON a.id=b.author_id WHERE
 INSERT INTO books (title, author_id, genre, description, cover_url, published_year)
 SELECT 'A Wrinkle in Time', (SELECT id FROM authors WHERE name = 'Madeleine L''Engle'), 'Science Fiction',
 'A young girl crosses strange worlds in a brave search for her father and for hope.',
-'https://placehold.co/600x900/png?text=A+Wrinkle+in+Time', 1962
+'https://books.google.com/books/content?id=BYsDLOsntpAC&printsec=frontcover&img=1&zoom=3&source=gbs_api', 1962
 WHERE NOT EXISTS (SELECT 1 FROM books b JOIN authors a ON a.id=b.author_id WHERE b.title='A Wrinkle in Time' AND a.name='Madeleine L''Engle');
 
 INSERT INTO books (title, author_id, genre, description, cover_url, published_year)
