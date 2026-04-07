@@ -14,10 +14,21 @@ async function fetchJson(url, options = {}) {
   return payload;
 }
 
+
+function placeholderCover(title) {
+  return `https://placehold.co/600x900/png?text=${encodeURIComponent(title)}`;
+}
+
+function coverAttrs(book) {
+  const src = book.cover_url || placeholderCover(book.title);
+  const fallback = placeholderCover(book.title);
+  return `src="${src}" alt="${book.title}" loading="lazy" onerror="this.onerror=null;this.src='${fallback}'"`;
+}
+
 function bookCard(book) {
   return `
     <article class="book-card">
-      <img src="${book.cover_url}" alt="${book.title}">
+      <img ${coverAttrs(book)}>
       <div class="book-card-body">
         <div>
           <h3>${book.title}</h3>

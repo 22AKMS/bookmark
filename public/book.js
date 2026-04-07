@@ -11,6 +11,11 @@ async function fetchJson(url, options = {}) {
   return payload;
 }
 
+
+function placeholderCover(title) {
+  return `https://placehold.co/600x900/png?text=${encodeURIComponent(title)}`;
+}
+
 function reviewCard(review) {
   return `
     <article class="review-card">
@@ -58,7 +63,7 @@ async function loadBook() {
   const relatedBooks = document.getElementById("relatedBooks");
 
   hero.innerHTML = `
-    <img class="hero-cover" src="${data.cover_url}" alt="${data.title}">
+    <img class="hero-cover" src="${data.cover_url || placeholderCover(data.title)}" alt="${data.title}" onerror="this.onerror=null;this.src='${placeholderCover(data.title)}'">
     <div class="stack">
       <div>
         <p class="eyebrow">${data.genre}</p>
