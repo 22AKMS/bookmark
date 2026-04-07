@@ -136,7 +136,7 @@ SELECT
   (SELECT id FROM authors WHERE name = 'Madeleine L''Engle'),
   'Science Fiction',
   'A young girl crosses strange worlds in a brave search for her father and for hope.',
-  'https://placehold.co/600x900/png?text=A+Wrinkle+in+Time',
+  'https://books.google.com/books/content?id=BYsDLOsntpAC&printsec=frontcover&img=1&zoom=3&source=gbs_api',
   1962
 WHERE NOT EXISTS (
   SELECT 1 FROM books b JOIN authors a ON a.id = b.author_id

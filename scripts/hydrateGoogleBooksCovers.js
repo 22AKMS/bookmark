@@ -37,7 +37,7 @@ function normalizeTitle(value) {
 async function fetchBestCover(title, author) {
   const query = `intitle:${title} inauthor:${author}`;
   const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&printType=books&langRestrict=en&maxResults=5`;
-  const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+  const res = await fetch(url, { headers: { Accept: 'application/json' } });
   if (!res.ok) throw new Error(`Google Books HTTP ${res.status}`);
   const data = await res.json();
   const items = Array.isArray(data.items) ? data.items : [];
@@ -56,12 +56,13 @@ async function fetchBestCover(title, author) {
 async function main() {
   const rowsRaw = psql([
     '-t', '-A', '-F', '\t', '-c',
-    `SELECT b.id, b.title, a.name
+    `SELECT b.id, b.title, a.name, COALESCE(b.cover_url, '')
      FROM books b
      JOIN authors a ON a.id = b.author_id
      WHERE b.cover_url IS NULL
         OR b.cover_url = ''
         OR b.cover_url LIKE 'https://placehold.co/%'
+        OR b.cover_url NOT LIKE 'https://books.google.com/books/content?id=%'
      ORDER BY b.id;`
   ]);
 
@@ -75,7 +76,7 @@ async function main() {
     });
 
   if (!rows.length) {
-    console.log('No placeholder covers found.');
+    console.log('All books already use Google Books covers.');
     return;
   }
 
