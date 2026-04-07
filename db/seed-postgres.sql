@@ -19,7 +19,7 @@ SELECT
   (SELECT id FROM authors WHERE name = 'J.R.R. Tolkien'),
   'Fantasy',
   'Bilbo Baggins is swept into a grand adventure that leads him far beyond the quiet comfort of home.',
-  'https://placehold.co/600x900/png?text=The+Hobbit',
+  'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=700&q=80',
   1937
 WHERE NOT EXISTS (
   SELECT 1 FROM books b JOIN authors a ON a.id = b.author_id
@@ -32,7 +32,7 @@ SELECT
   (SELECT id FROM authors WHERE name = 'Jane Austen'),
   'Classic',
   'Elizabeth Bennet navigates family expectations, social pressure, and a slow-blooming romance with wit and heart.',
-  'https://placehold.co/600x900/png?text=Pride+and+Prejudice',
+  'https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=700&q=80',
   1813
 WHERE NOT EXISTS (
   SELECT 1 FROM books b JOIN authors a ON a.id = b.author_id
@@ -45,7 +45,7 @@ SELECT
   (SELECT id FROM authors WHERE name = 'Andy Weir'),
   'Science Fiction',
   'An astronaut stranded on Mars relies on humor, grit, and practical problem-solving to make it home.',
-  'https://placehold.co/600x900/png?text=The+Martian',
+  'https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=700&q=80',
   2011
 WHERE NOT EXISTS (
   SELECT 1 FROM books b JOIN authors a ON a.id = b.author_id
@@ -58,7 +58,7 @@ SELECT
   (SELECT id FROM authors WHERE name = 'Louisa May Alcott'),
   'Classic',
   'Four sisters grow up, dream boldly, and learn what family means through changing seasons of life.',
-  'https://placehold.co/600x900/png?text=Little+Women',
+  'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=700&q=80',
   1868
 WHERE NOT EXISTS (
   SELECT 1 FROM books b JOIN authors a ON a.id = b.author_id
@@ -71,7 +71,7 @@ SELECT
   (SELECT id FROM authors WHERE name = 'L.M. Montgomery'),
   'Classic',
   'Anne Shirley brings imagination, energy, and warmth to Green Gables and to everyone around her.',
-  'https://placehold.co/600x900/png?text=Anne+of+Green+Gables',
+  'https://images.unsplash.com/photo-1495446815901-a7297e633e8d?auto=format&fit=crop&w=700&q=80',
   1908
 WHERE NOT EXISTS (
   SELECT 1 FROM books b JOIN authors a ON a.id = b.author_id
@@ -84,7 +84,7 @@ SELECT
   (SELECT id FROM authors WHERE name = 'Frances Hodgson Burnett'),
   'Classic',
   'A hidden garden becomes the center of healing, friendship, and renewal for a lonely young girl.',
-  'https://placehold.co/600x900/png?text=The+Secret+Garden',
+  'https://images.unsplash.com/photo-1511108690759-009324a90311?auto=format&fit=crop&w=700&q=80',
   1911
 WHERE NOT EXISTS (
   SELECT 1 FROM books b JOIN authors a ON a.id = b.author_id
@@ -97,7 +97,7 @@ SELECT
   (SELECT id FROM authors WHERE name = 'E.B. White'),
   'Children''s',
   'A gentle story about friendship, kindness, and the small acts that can change a life.',
-  'https://placehold.co/600x900/png?text=Charlotte%27s+Web',
+  'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=700&q=80',
   1952
 WHERE NOT EXISTS (
   SELECT 1 FROM books b JOIN authors a ON a.id = b.author_id
@@ -110,7 +110,7 @@ SELECT
   (SELECT id FROM authors WHERE name = 'A.A. Milne'),
   'Children''s',
   'Pooh and friends wander through simple adventures filled with charm, humor, and affection.',
-  'https://placehold.co/600x900/png?text=Winnie-the-Pooh',
+  'https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=700&q=80',
   1926
 WHERE NOT EXISTS (
   SELECT 1 FROM books b JOIN authors a ON a.id = b.author_id
@@ -123,7 +123,7 @@ SELECT
   (SELECT id FROM authors WHERE name = 'Kenneth Grahame'),
   'Classic',
   'Mole, Rat, Badger, and Toad share a series of memorable journeys through the English countryside.',
-  'https://placehold.co/600x900/png?text=The+Wind+in+the+Willows',
+  'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=700&q=80',
   1908
 WHERE NOT EXISTS (
   SELECT 1 FROM books b JOIN authors a ON a.id = b.author_id
@@ -136,7 +136,7 @@ SELECT
   (SELECT id FROM authors WHERE name = 'Madeleine L''Engle'),
   'Science Fiction',
   'A young girl crosses strange worlds in a brave search for her father and for hope.',
-  'https://placehold.co/600x900/png?text=A+Wrinkle+in+Time',
+  'https://books.google.com/books/content?id=BYsDLOsntpAC&printsec=frontcover&img=1&zoom=3&source=gbs_api',
   1962
 WHERE NOT EXISTS (
   SELECT 1 FROM books b JOIN authors a ON a.id = b.author_id
@@ -149,7 +149,7 @@ SELECT
   (SELECT id FROM authors WHERE name = 'L. Frank Baum'),
   'Fantasy',
   'Dorothy follows the yellow brick road through a colorful land in search of home.',
-  'https://placehold.co/600x900/png?text=The+Wonderful+Wizard+of+Oz',
+  'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=700&q=80',
   1900
 WHERE NOT EXISTS (
   SELECT 1 FROM books b JOIN authors a ON a.id = b.author_id
@@ -162,7 +162,7 @@ SELECT
   (SELECT id FROM authors WHERE name = 'Paulo Coelho'),
   'Adventure',
   'A young shepherd travels far from home in search of treasure and personal meaning.',
-  'https://placehold.co/600x900/png?text=The+Alchemist',
+  'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=700&q=80',
   1988
 WHERE NOT EXISTS (
   SELECT 1 FROM books b JOIN authors a ON a.id = b.author_id
