@@ -136,7 +136,7 @@ prompt_default TREND_FUNCTION "Trending function name" "${TREND_FUNCTION:-rebuil
 prompt_default SQL_INSTANCE "Cloud SQL instance name" "${INSTANCE:-bookmark-sql}"
 prompt_default FIRESTORE_DB "Firestore database ID" "${FIRESTORE_DB:-books-app}"
 prompt_default APP_SA "Service account name to optionally delete" "${APP_SA:-bookmark-sa}"
-prompt_yes_no DELETE_SERVICE_ACCOUNT "Also delete the app service account?" "n"
+prompt_yes_no DELETE_SERVICE_ACCOUNT "Also delete the app service account?" "y"
 
 log "Active gcloud account: ${CURRENT_ACCOUNT:-unknown}"
 log "Using project: $PROJECT_ID"
