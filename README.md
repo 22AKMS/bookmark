@@ -90,8 +90,7 @@ These steps assume you already cloned the project into **Cloud Shell** and want 
 ### 1. Go to the project root
 
 ```bash
-cd ~/book-app/webapp
-pwd
+cd bookmark/
 ls
 ```
 
